@@ -1,29 +1,27 @@
-// app/components/ProjectsMinimalVariant.tsx
-
+// app/components/Projects.tsx
 'use client';
 
 import Image from 'next/image';
 import { useState } from 'react';
 
-export default function ProjectsMinimalVariant() {
+export default function Projects() {
 	const projects = [
 		{
 			id: 'qc-system',
-			title: 'Weight Scale and Moisture',
-			subtitle: 'Scale and moisture measurement system',
+			title: 'Integrated QC & Weighing ERP',
+			subtitle: 'End-to-End Industrial Management System',
 			company: 'PT Agro Deli Serdang',
 			year: '2025',
 			description:
-				'Built a comprehensive quality control management system from ground up. Handles complete QC workflow from product receiving to final approval with real-time analytics, automated reporting, and multi-role access control.',
+				'Solely architected and developed a mission-critical ERP subsystem to digitize factory operations. Replaced manual paper workflows with a real-time digital system connecting physical hardware (weighing bridges) to the cloud. Managed the entire SDLC from requirement gathering to deployment.',
 			stack: {
-				Frontend: 'Angular + Tailwind CSS',
-				Backend: 'Laravel + MySQL',
-				Features:
-					'RBAC, Real-time Analytics, Document Management, Web Serial Api To Connect Weight Bridge Scale to WebApp From RS-232 Cable, translate RS-232 Data to Number Format',
+				Role: 'Sole Fullstack Developer (Independent)', // Explicitly states you worked alone
+				Tech: 'Angular 18 (Signals) + Laravel',
+				Core: 'Web Serial API (Hardware), RBAC (7 Roles), Real-time Analytics', // Highlights technical depth
 			},
 			metrics: [
-				{ label: 'Daily Users', value: '50+' },
-				{ label: 'Modules', value: '12' },
+				{ label: 'Team Size', value: '1 (Solo)' }, // The most important metric for you
+				{ label: 'User Roles', value: '7' }, // Based on your admin.routing.ts
 				{ label: 'Uptime', value: '99.9%' },
 			],
 			screenshots: ['/projects/ads-qc-1.png'],
@@ -36,16 +34,16 @@ export default function ProjectsMinimalVariant() {
 			company: 'PT Agro Deli Serdang',
 			year: '2024',
 			description:
-				'Developed end-to-end warehouse management system with real-time inventory tracking, automated stock opname scheduling, and barcode/QR integration. Supports multi-warehouse operations and integrates seamlessly with QC system.',
+				'Designed and built a multi-warehouse inventory system independently. Engineered complex stock calculation logic using reactive state management to handle transactions across 3 different warehouse locations with zero data discrepancy.',
 			stack: {
-				Frontend: 'Nuxt.js + Tailwind CSS',
-				Backend: 'Laravel + MySQL',
-				Features: 'Inventory Tracking, Auto Opname, Barcode Scanning',
+				Role: 'Sole Developer',
+				Tech: 'Nuxt.js + Laravel',
+				Features: 'Barcode Integration, Auto-Opname, Multi-site Sync',
 			},
 			metrics: [
-				{ label: 'Daily Users', value: '60+' },
-				{ label: 'Transactions/Day', value: '500+' },
 				{ label: 'Warehouses', value: '3' },
+				{ label: 'Daily Tx', value: '500+' },
+				{ label: 'Data Accuracy', value: '100%' },
 			],
 			screenshots: ['/projects/ads-warehouse-1.png'],
 			color: '#8AC5E5',
@@ -78,15 +76,18 @@ export default function ProjectsMinimalVariant() {
 							</h2>
 						</div>
 						<div className="hidden md:block text-right">
-							<p className="text-sm text-gray-500 mb-2">Role</p>
+							<p className="text-sm text-gray-500 mb-2">My Role</p>
 							<p className="text-white font-semibold">
-								Fullstack Developer, Working Independently
+								Independent Fullstack Engineer
+							</p>
+							<p className="text-xs text-gray-600 mt-1">
+								Handling Architecture, Frontend, Backend, & DevOps
 							</p>
 						</div>
 					</div>
 					<p className="text-gray-400 text-sm max-w-xl">
-						Enterprise-grade applications built independently for real-world
-						business operations
+						Enterprise-grade applications built from the ground up to solve real
+						business problems.
 					</p>
 				</div>
 
