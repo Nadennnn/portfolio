@@ -1,3 +1,5 @@
+// app/page.tsx
+
 'use client';
 
 import Experience from './components/Experience';

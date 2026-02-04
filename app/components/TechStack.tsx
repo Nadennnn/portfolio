@@ -1,3 +1,5 @@
+// app/components/TechStack.tsx
+
 'use client';
 
 // OPTION 1: Glassmorphism Cards dengan Real Icons (RECOMMENDED)
@@ -95,7 +97,7 @@ export function TechStackGlass() {
 					<div className="flex items-center justify-center gap-3 mb-4">
 						<span className="h-px w-12 bg-[#E58C8A]"></span>
 						<p className="text-[#E58C8A] text-sm tracking-[0.3em] font-bold uppercase">
-							Proficient In
+							Proficient In Frontend Development
 						</p>
 						<span className="h-px w-12 bg-[#E58C8A]"></span>
 					</div>
