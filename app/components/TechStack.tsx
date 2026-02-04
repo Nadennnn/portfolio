@@ -103,7 +103,7 @@ export function TechStackGlass() {
 					</div>
 					<h2 className="text-3xl md:text-5xl font-bold text-white mb-3">
 						Tech{' '}
-						<span className="text-transparent bg-clip-text bg-gradient-to-r from-gray-100 to-gray-500">
+						<span className="text-transparent bg-clip-text bg-linear-to-r from-gray-100 to-gray-500">
 							Stack
 						</span>
 					</h2>

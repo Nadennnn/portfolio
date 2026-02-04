@@ -2,8 +2,14 @@
 
 import Link from 'next/link';
 import Image from 'next/image';
+import { useState } from 'react';
 
 export default function HeroLeftColumn() {
+	// ANCHOR MODAL EMAIL COPY
+	const navigateTo = (data: any) => {
+		window.location.href = data;
+	};
+
 	return (
 		<div className="p-8 lg:p-16 flex flex-col justify-center order-2 lg:order-1 z-10 h-full">
 			{/* Label Kecil */}
@@ -157,7 +163,7 @@ export default function HeroLeftColumn() {
 						</span>
 					</Link>
 					<Link
-						href="#experience"
+						href="#projects"
 						className="px-8 py-3 rounded-full border border-gray-800 text-sm font-medium hover:border-[#E58C8A] hover:text-[#E58C8A] transition-all hover:scale-105 flex items-center gap-2">
 						<span>View Work</span>
 						<svg
@@ -180,7 +186,7 @@ export default function HeroLeftColumn() {
 					<span className="h-px w-8 bg-gray-800"></span>
 					<div className="flex gap-3">
 						<Link
-							href="https://linkedin.com/in/your-profile"
+							href="https://www.linkedin.com/in/ynadennn/"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="group relative w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:border-[#E58C8A] hover:bg-[#E58C8A]/10 transition-all overflow-hidden">
@@ -193,7 +199,7 @@ export default function HeroLeftColumn() {
 						</Link>
 
 						<Link
-							href="https://github.com/your-username"
+							href="https://github.com/Nadennnn"
 							target="_blank"
 							rel="noopener noreferrer"
 							className="group relative w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:border-[#E58C8A] hover:bg-[#E58C8A]/10 transition-all overflow-hidden">
@@ -206,7 +212,7 @@ export default function HeroLeftColumn() {
 						</Link>
 
 						<Link
-							href="mailto:yoganadennn@gmail.com"
+							href="/mail"
 							className="group relative w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center hover:border-[#E58C8A] hover:bg-[#E58C8A]/10 transition-all overflow-hidden">
 							<svg
 								className="w-5 h-5 text-gray-400 group-hover:text-[#E58C8A] transition-colors relative z-10"
