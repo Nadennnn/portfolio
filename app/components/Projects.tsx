@@ -11,7 +11,7 @@ export default function Projects() {
 			title: 'Integrated QC & Weighing ERP',
 			subtitle: 'End-to-End Industrial Management System',
 			company: 'PT Agro Deli Serdang',
-			year: '2025',
+			year: 'DEC 2025',
 			description:
 				'Solely architected and developed a mission-critical ERP subsystem to digitize factory operations. Replaced manual paper workflows with a real-time digital system connecting physical hardware (weighing bridges) to the cloud. Managed the entire SDLC from requirement gathering to deployment.',
 			stack: {
@@ -32,7 +32,7 @@ export default function Projects() {
 			title: 'Warehouse Management',
 			subtitle: 'Inventory & Stock Control',
 			company: 'PT Agro Deli Serdang',
-			year: '2024',
+			year: 'JAN 2026',
 			description:
 				'Designed and built a multi-warehouse inventory system independently. Engineered complex stock calculation logic using reactive state management to handle transactions across 3 different warehouse locations with zero data discrepancy.',
 			stack: {
