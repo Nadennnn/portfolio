@@ -6,10 +6,12 @@ import Experience from './components/Experience';
 import Hero from './components/Hero';
 import Projects from './components/Projects';
 import TechStack from './components/TechStack';
+import { Analytics } from '@vercel/analytics/next';
 
 export default function Home() {
 	return (
 		<main className="min-h-screen bg-black">
+			<Analytics />
 			<Hero />
 			<TechStack />
 			<Projects />

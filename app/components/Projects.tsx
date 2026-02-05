@@ -16,7 +16,7 @@ export default function Projects() {
 				'Solely architected and developed a mission-critical ERP subsystem to digitize factory operations. Replaced manual paper workflows with a real-time digital system connecting physical hardware (weighing bridges) to the cloud. Managed the entire SDLC from requirement gathering to deployment.',
 			stack: {
 				Role: 'Sole Fullstack Developer (Independent)', // Explicitly states you worked alone
-				Tech: 'Angular 18 (Signals) + Laravel',
+				Tech: 'Angular 20 (Signals) + Laravel',
 				Core: 'Web Serial API (Hardware), RBAC (7 Roles), Real-time Analytics', // Highlights technical depth
 			},
 			metrics: [
