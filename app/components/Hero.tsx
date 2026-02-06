@@ -8,7 +8,7 @@ import { useState } from 'react';
 
 export default function Hero() {
 	const primarySrc = '/profile.png';
-	const fallbackSrc = 'https://i.ibb.co.com/KjVp32wq/profile.png';
+	// const fallbackSrc = 'https://i.ibb.co.com/KjVp32wq/profile.png';
 
 	// State untuk mengontrol src mana yang digunakan
 	const [imgSrc, setImgSrc] = useState(primarySrc);
@@ -37,7 +37,7 @@ export default function Hero() {
 							className="object-cover object-top"
 							priority
 							// Fungsi ini terpanggil jika src pertama error
-							onError={() => setImgSrc(fallbackSrc)}
+							// onError={() => setImgSrc(fallbackSrc)}
 						/>
 
 						{/* linear Overlay di bawah agar foto menyatu dengan section bawah */}
