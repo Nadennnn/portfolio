@@ -9,7 +9,7 @@ export default function HeroRightColumn() {
 			<div className="flex flex-col lg:flex-row gap-3 w-full lg:w-auto lg:justify-end">
 				<div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-full">
 					<div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-					<span className="text-xs font-medium">Lookin for remote work</span>
+					<span className="text-xs font-medium">Looking for remote work</span>
 				</div>
 				<div className="flex items-center gap-2 bg-white/5 backdrop-blur-sm border border-white/10 px-4 py-2 rounded-full">
 					<span className="text-xs">📍</span>

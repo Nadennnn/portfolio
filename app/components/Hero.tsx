@@ -1,3 +1,5 @@
+'use client';
+
 // app/components/Hero.tsx
 
 import Image from 'next/image';
@@ -8,10 +10,10 @@ import { useState } from 'react';
 
 export default function Hero() {
 	const primarySrc = '/profile.png';
-	// const fallbackSrc = 'https://i.ibb.co.com/KjVp32wq/profile.png';
 
 	// State untuk mengontrol src mana yang digunakan
 	const [imgSrc, setImgSrc] = useState(primarySrc);
+
 	return (
 		<section className="min-h-screen grid grid-cols-1 lg:grid-cols-[1.2fr_1fr_1.2fr] items-center pt-10 lg:pt-0 relative overflow-hidden bg-black text-white">
 			{/* --- DEKORASI BACKGROUND (GLOW EFFECT) --- */}

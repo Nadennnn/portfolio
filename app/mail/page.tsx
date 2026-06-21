@@ -42,21 +42,25 @@ export default function MailPage() {
 
 		setStatus('sending');
 
-		try {
-			const res = await fetch('/api/contact', {
-				method: 'POST',
-				headers: { 'Content-Type': 'application/json' },
-				body: JSON.stringify(form),
-			});
+		// Redirect to mail client on the client-side
+		setTimeout(() => {
+			try {
+				const subject = encodeURIComponent(`Portfolio Message from ${form.name}`);
+				const body = encodeURIComponent(
+					`Name: ${form.name}\n` +
+					`Email: ${form.fromEmail}\n\n` +
+					`Message:\n${form.message}`
+				);
+				window.location.href = `mailto:${email}?subject=${subject}&body=${body}`;
 
-			if (!res.ok) throw new Error('Failed');
-
-			setStatus('sent');
-			setForm({ name: '', fromEmail: '', message: '' });
-		} catch {
-			setStatus('error');
-		}
+				setStatus('sent');
+				setForm({ name: '', fromEmail: '', message: '' });
+			} catch {
+				setStatus('error');
+			}
+		}, 800);
 	};
+
 
 	return (
 		<div className="min-h-screen bg-black text-white">

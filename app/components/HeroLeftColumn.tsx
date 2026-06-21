@@ -1,17 +1,9 @@
-// app/
-
 import Link from 'next/link';
-import Image from 'next/image';
-import { useState } from 'react';
 
 export default function HeroLeftColumn() {
-	// ANCHOR MODAL EMAIL COPY
-	const navigateTo = (data: any) => {
-		window.location.href = data;
-	};
-
 	return (
 		<div className="p-8 lg:p-16 flex flex-col justify-center order-2 lg:order-1 z-10 h-full">
+
 			{/* Label Kecil */}
 			<div className="flex items-center gap-3 mb-6">
 				<span className="h-px w-10 bg-[#E58C8A]"></span>

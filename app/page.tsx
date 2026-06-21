@@ -1,21 +1,29 @@
 // app/page.tsx
 
-'use client';
-
 import Experience from './components/Experience';
 import Hero from './components/Hero';
 import Projects from './components/Projects';
 import TechStack from './components/TechStack';
+import Navbar from './components/Navbar';
 import { Analytics } from '@vercel/analytics/next';
 
 export default function Home() {
 	return (
 		<main className="min-h-screen bg-black">
 			<Analytics />
-			<Hero />
-			<TechStack />
-			<Projects />
-			<Experience />
+			<Navbar />
+			<div id="home">
+				<Hero />
+			</div>
+			<div id="tech-stack">
+				<TechStack />
+			</div>
+			<div id="projects">
+				<Projects />
+			</div>
+			<div id="experience">
+				<Experience />
+			</div>
 
 			{/* Simple Footer */}
 			<footer className="py-10 text-center text-gray-600 text-sm border-t border-gray-900">
@@ -31,3 +39,4 @@ export default function Home() {
 		</main>
 	);
 }
+
