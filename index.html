@@ -1,0 +1,842 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<title>Naden — Factory Floor Systems</title>
+<meta name="description" content="Yoga Naden — fullstack developer in Medan, Indonesia. Case studies from a paper mill: driving a Siemens PLC from a web app, reading a truck scale over the Web Serial API, and one dashboard over four factory systems.">
+<meta name="author" content="Yoga Naden">
+<meta name="theme-color" content="#ebeef0" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#101315" media="(prefers-color-scheme: dark)">
+
+<!-- Link preview card (LinkedIn, WhatsApp, Slack).
+     Once the domain is live, add:
+       <meta property="og:url"   content="https://your-domain/">
+       <meta property="og:image" content="https://your-domain/preview.png">   1200x630 -->
+<meta property="og:type" content="profile">
+<meta property="og:title" content="Naden — Factory Floor Systems">
+<meta property="og:description" content="Yoga Naden — fullstack developer in Medan, Indonesia. Case studies from a paper mill: driving a Siemens PLC from a web app, reading a truck scale over the Web Serial API, and one dashboard over four factory systems.">
+<meta property="og:locale" content="en_US">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Naden — Factory Floor Systems">
+<meta name="twitter:description" content="Yoga Naden — fullstack developer in Medan, Indonesia. Case studies from a paper mill: driving a Siemens PLC from a web app, reading a truck scale over the Web Serial API, and one dashboard over four factory systems.">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='4' fill='%2314181b'/%3E%3Cpath d='M16 8.5a7.5 7.5 0 100 15 7.5 7.5 0 000-15zm0 4.2a3.3 3.3 0 110 6.6 3.3 3.3 0 010-6.6z' fill='%23e6a340'/%3E%3C/svg%3E">
+<link rel="canonical" href="./">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+
+<style>
+  /* standalone reset — on a platform this comes from the host page wrapper */
+  html{ color-scheme:light dark; background:#ebeef0; }
+  @media (prefers-color-scheme: dark){ html:not([data-theme="light"]){ background:#101315; } }
+  html[data-theme="dark"]{ background:#101315; }
+  body{ margin:0; }
+  img{ max-width:100%; }
+  [hidden]{ display:none !important; }
+</style>
+
+<style>
+/* ============================================================
+   TOKENS — steel + signal amber. Light is the base; dark and the
+   explicit stamps redefine tokens only, never components.
+   ============================================================ */
+:root{
+  --ground:   #ebeef0;
+  --surface:  #f8fafa;
+  --plate:    #e2e7ea;
+  --ink:      #14181b;
+  --muted:    #58626b;
+  --faint:    #7c868e;
+  --rule:     #ccd3d8;
+  --rule-hard:#aeb8bf;
+  --accent:   #9a5a00;
+  --accent-bg:#f3e5cd;
+  --live:     #1f6146;
+  --live-bg:  #d8e8e0;
+  --shadow:   0 1px 0 rgba(20,24,27,.06);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --ground:   #101315;
+    --surface:  #181c1f;
+    --plate:    #1e2427;
+    --ink:      #e4e9eb;
+    --muted:    #97a3ab;
+    --faint:    #78848c;
+    --rule:     #2b3236;
+    --rule-hard:#3d474d;
+    --accent:   #e6a340;
+    --accent-bg:#2a2114;
+    --live:     #56bd91;
+    --live-bg:  #16281f;
+    --shadow:   0 1px 0 rgba(0,0,0,.3);
+  }
+}
+:root[data-theme="dark"]{
+  --ground:   #101315;
+  --surface:  #181c1f;
+  --plate:    #1e2427;
+  --ink:      #e4e9eb;
+  --muted:    #97a3ab;
+  --faint:    #78848c;
+  --rule:     #2b3236;
+  --rule-hard:#3d474d;
+  --accent:   #e6a340;
+  --accent-bg:#2a2114;
+  --live:     #56bd91;
+  --live-bg:  #16281f;
+  --shadow:   0 1px 0 rgba(0,0,0,.3);
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
+*{ box-sizing:border-box; }
+
+body{
+  background:var(--ground);
+  color:var(--ink);
+  font-family:'IBM Plex Sans',system-ui,-apple-system,'Segoe UI',sans-serif;
+  font-size:16px;
+  line-height:1.62;
+  -webkit-font-smoothing:antialiased;
+}
+
+.wrap{
+  max-width:920px;
+  margin:0 auto;
+  padding-inline:24px;
+  padding-block:0 96px;
+}
+
+p{ margin:0 0 1.05em; max-width:68ch; }
+p:last-child{ margin-bottom:0; }
+
+a{ color:var(--accent); text-decoration:none; border-bottom:1px solid color-mix(in srgb, var(--accent) 40%, transparent); }
+a:hover{ border-bottom-color:var(--accent); }
+a:focus-visible{ outline:2px solid var(--accent); outline-offset:3px; border-radius:2px; }
+
+strong{ font-weight:600; }
+
+code{
+  font-family:'IBM Plex Mono',ui-monospace,'SF Mono',Menlo,monospace;
+  font-size:.875em;
+  background:var(--plate);
+  padding:.1em .38em;
+  border-radius:2px;
+}
+
+h1,h2,h3{ font-family:'Archivo',system-ui,sans-serif; text-wrap:balance; margin:0; }
+
+/* ============================================================
+   EYEBROW — monospace section marker
+   ============================================================ */
+.eyebrow{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  font-weight:500;
+  letter-spacing:.14em;
+  text-transform:uppercase;
+  color:var(--faint);
+  display:flex;
+  align-items:center;
+  gap:12px;
+  margin-bottom:14px;
+}
+.eyebrow::after{
+  content:"";
+  flex:1;
+  height:1px;
+  background:var(--rule);
+}
+
+/* ============================================================
+   MASTHEAD
+   ============================================================ */
+.masthead{
+  padding-block:56px 40px;
+  border-bottom:2px solid var(--ink);
+}
+.masthead h1{
+  font-size:clamp(38px,7vw,60px);
+  font-weight:700;
+  line-height:1.02;
+  letter-spacing:-.02em;
+}
+.masthead .role{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:13px;
+  letter-spacing:.05em;
+  color:var(--muted);
+  margin-top:14px;
+  max-width:none;
+}
+.masthead .role .sep{ color:var(--rule-hard); padding-inline:8px; }
+
+.avail{
+  display:inline-flex;
+  align-items:center;
+  gap:8px;
+  margin-top:22px;
+  padding:5px 12px 5px 10px;
+  background:var(--live-bg);
+  color:var(--live);
+  border:1px solid color-mix(in srgb, var(--live) 32%, transparent);
+  border-radius:3px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  font-weight:500;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+}
+.lamp{
+  width:7px; height:7px; border-radius:50%;
+  background:var(--live);
+  box-shadow:0 0 0 3px color-mix(in srgb, var(--live) 18%, transparent);
+  flex:none;
+}
+
+/* ============================================================
+   THESIS
+   ============================================================ */
+.thesis{ padding-block:40px; border-bottom:1px solid var(--rule); }
+.thesis p{ font-size:19px; line-height:1.58; }
+.thesis p:first-child{ font-size:21px; }
+
+/* ============================================================
+   SECTION
+   ============================================================ */
+section{ padding-block:48px; border-bottom:1px solid var(--rule); }
+section:last-of-type{ border-bottom:none; }
+
+h2{
+  font-size:clamp(25px,4vw,32px);
+  font-weight:600;
+  letter-spacing:-.015em;
+  line-height:1.16;
+  margin-bottom:18px;
+}
+h3{
+  font-size:17px;
+  font-weight:600;
+  letter-spacing:-.005em;
+  margin:30px 0 10px;
+}
+
+/* ============================================================
+   SYSTEMS LEDGER — the 60-second skim
+   ============================================================ */
+.ledger{ display:flex; flex-direction:column; border-top:1px solid var(--rule-hard); }
+.ledger-row{
+  display:grid;
+  grid-template-columns:1fr 150px 84px;
+  gap:8px 20px;
+  align-items:baseline;
+  padding-block:14px;
+  border-bottom:1px solid var(--rule);
+}
+.ledger-row .name{ font-weight:600; font-size:16px; }
+.ledger-row .what{
+  grid-column:1;
+  color:var(--muted);
+  font-size:14.5px;
+  line-height:1.45;
+}
+.ledger-row .tech{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11.5px;
+  color:var(--faint);
+  line-height:1.5;
+}
+.ledger-row .stat{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--live);
+  white-space:nowrap;
+}
+@media (max-width:620px){
+  .ledger-row{ grid-template-columns:1fr auto; }
+  .ledger-row .name{ grid-column:1; }
+  .ledger-row .stat{ grid-column:2; grid-row:1; text-align:right; }
+  .ledger-row .what{ grid-column:1 / -1; }
+  .ledger-row .tech{ grid-column:1 / -1; }
+}
+
+/* ============================================================
+   DATA PLATE — the machine nameplate device
+   ============================================================ */
+.plate{
+  background:var(--plate);
+  border:1px solid var(--rule-hard);
+  border-left:3px solid var(--accent);
+  border-radius:2px;
+  padding:16px 18px;
+  margin:26px 0;
+  box-shadow:var(--shadow);
+}
+.plate dl{
+  margin:0;
+  display:grid;
+  grid-template-columns:auto 1fr;
+  gap:7px 18px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  line-height:1.45;
+}
+.plate dt{
+  color:var(--faint);
+  text-transform:uppercase;
+  letter-spacing:.08em;
+  font-size:10.5px;
+  padding-top:2px;
+  white-space:nowrap;
+}
+.plate dd{ margin:0; color:var(--ink); }
+@media (max-width:520px){
+  .plate dl{ grid-template-columns:1fr; gap:2px 0; }
+  .plate dd{ margin-bottom:9px; }
+}
+
+/* ============================================================
+   TERMINAL — protocol frames, register maps
+   ============================================================ */
+.term{
+  background:var(--surface);
+  border:1px solid var(--rule);
+  border-radius:2px;
+  padding:15px 17px;
+  margin:22px 0;
+  overflow-x:auto;
+}
+.term pre{
+  margin:0;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  line-height:1.72;
+  color:var(--ink);
+}
+.term .cm{ color:var(--faint); }
+.term .hi{ color:var(--accent); font-weight:500; }
+
+/* ============================================================
+   SEQUENCE — ordered because the order is the point
+   ============================================================ */
+ol.seq{
+  list-style:none;
+  margin:22px 0;
+  padding:0;
+  counter-reset:step;
+  border-top:1px solid var(--rule);
+}
+ol.seq li{
+  counter-increment:step;
+  display:grid;
+  grid-template-columns:30px 118px 1fr;
+  gap:14px;
+  align-items:baseline;
+  padding-block:9px;
+  border-bottom:1px solid var(--rule);
+  font-size:14.5px;
+}
+ol.seq li::before{
+  content:counter(step);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  color:var(--faint);
+}
+ol.seq .addr{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+  color:var(--accent);
+  font-weight:500;
+}
+@media (max-width:560px){
+  ol.seq li{ grid-template-columns:26px 1fr; gap:6px 10px; }
+  ol.seq .addr{ grid-column:2; }
+  ol.seq .desc{ grid-column:2; }
+}
+
+/* ============================================================
+   FIGURE / DIAGRAM
+   ============================================================ */
+.seq-note{ font-size:13.5px; color:var(--faint); font-style:italic; margin-top:-8px; }
+
+figure{ margin:30px 0; }
+figure svg{ display:block; width:100%; max-width:100%; height:auto; }
+@media (max-width:680px){
+  /* a diagram shrunk to phone width stops being readable — let it scroll in its own track */
+  figure{ overflow-x:auto; }
+  figure svg{ min-width:600px; max-width:none; }
+}
+figcaption{
+  margin-top:12px;
+  font-size:13.5px;
+  color:var(--muted);
+  line-height:1.5;
+  max-width:62ch;
+}
+
+/* ============================================================
+   CALLOUT — a judgement worth pausing on
+   ============================================================ */
+.callout{
+  border-left:2px solid var(--rule-hard);
+  padding:2px 0 2px 18px;
+  margin:24px 0;
+  color:var(--muted);
+  font-size:15.5px;
+  line-height:1.6;
+}
+.callout strong{ color:var(--ink); }
+
+/* ============================================================
+   PRACTICE LIST
+   ============================================================ */
+.practice{ display:grid; gap:26px; margin-top:26px; }
+.practice > div{ display:grid; gap:6px; }
+.practice h3{ margin:0; }
+
+/* ============================================================
+   STACK
+   ============================================================ */
+.stack-grid{
+  display:grid;
+  grid-template-columns:150px 1fr;
+  gap:9px 22px;
+  margin-top:22px;
+  font-size:14.5px;
+}
+.stack-grid dt{
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:.08em;
+  text-transform:uppercase;
+  color:var(--faint);
+  padding-top:4px;
+}
+.stack-grid dd{ margin:0; }
+@media (max-width:560px){
+  .stack-grid{ grid-template-columns:1fr; gap:2px; }
+  .stack-grid dd{ margin-bottom:14px; }
+}
+
+/* ============================================================
+   CONTACT
+   ============================================================ */
+.contact-list{
+  display:flex;
+  flex-wrap:wrap;
+  gap:10px;
+  margin-top:24px;
+  padding:0;
+  list-style:none;
+}
+.contact-list a{
+  display:inline-block;
+  padding:8px 14px;
+  border:1px solid var(--rule-hard);
+  border-bottom:1px solid var(--rule-hard);
+  border-radius:2px;
+  background:var(--surface);
+  color:var(--ink);
+  font-family:'IBM Plex Mono',monospace;
+  font-size:12.5px;
+}
+.contact-list a:hover{ border-color:var(--accent); color:var(--accent); }
+
+footer{
+  padding-block:30px 0;
+  border-top:1px solid var(--rule);
+  margin-top:48px;
+  font-family:'IBM Plex Mono',monospace;
+  font-size:11px;
+  letter-spacing:.06em;
+  text-transform:uppercase;
+  color:var(--faint);
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="masthead">
+    <h1>Yoga Naden</h1>
+    <div class="role">
+      Fullstack developer<span class="sep">/</span>industrial systems<span class="sep">/</span>Medan, Indonesia &middot; GMT+7
+    </div>
+    <div class="avail"><span class="lamp"></span>Open to remote roles</div>
+  </header>
+
+  <div class="thesis">
+    <p>I write software that a paper mill runs on. Not dashboards <em>about</em> the mill &mdash; the systems the weighbridge operator, the warehouse clerk and the winder line actually touch during a shift.</p>
+    <p>Over nine months at PT Agro Deli Serdang I designed, built, deployed and now operate five production systems, including one that reads a Siemens PLC and writes back the commands that move an inkjet head and a conveyor. I was the only developer on all of them, and I run the hosting they live on.</p>
+  </div>
+
+  <section>
+    <div class="eyebrow">In production</div>
+    <h2>Five systems, one mill</h2>
+    <p>Each of these is live and carrying real work today. They were built in sequence, and the last one exists because the first four needed to be readable together.</p>
+
+    <div class="ledger">
+      <div class="ledger-row">
+        <div class="name">Weighbridge &amp; QC</div>
+        <div class="stat">Live · 8 mo</div>
+        <div class="what">Every truck in and out of the mill: gross and tare weights read straight off the indicator, lab moisture sampling, claim deductions, stock reconciliation, warehouse block map.</div>
+        <div class="tech">Angular 21 · Laravel 12 · Electron · MySQL / SQLite</div>
+      </div>
+      <div class="ledger-row">
+        <div class="name">Warehouse &amp; Procurement</div>
+        <div class="stat">Live</div>
+        <div class="what">Spare parts and consumables for the paper machine, boiler and water treatment. Purchase request through purchase order through goods receipt, with item-level approvals.</div>
+        <div class="tech">Nuxt 4 · Laravel 12 · MySQL</div>
+      </div>
+      <div class="ledger-row">
+        <div class="name">Winder Production</div>
+        <div class="stat">Live daily</div>
+        <div class="what">The rewinder line. Reads roll data from a Siemens S7-1500, weighs the roll, prints a Code128 label, drives the inkjet marker, and syncs every roll to the cloud.</div>
+        <div class="tech">Angular 21 · Node / Fastify · Electron · S7comm · serial</div>
+      </div>
+      <div class="ledger-row">
+        <div class="name">Maintenance / CMMS</div>
+        <div class="stat">Live</div>
+        <div class="what">Service requests and work orders across mechanical, instrument and electrical teams, by plant area and asset.</div>
+        <div class="tech">Angular 21 · Laravel · JWT</div>
+      </div>
+      <div class="ledger-row">
+        <div class="name">Executive Dashboard</div>
+        <div class="stat">Live</div>
+        <div class="what">One mobile-first view over the four systems above, for directors who previously held four logins and waited on manually consolidated reports.</div>
+        <div class="tech">Nuxt 4 · Nitro · Drizzle · MySQL</div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Case 01 &middot; Winder line</div>
+    <h2>Teaching a web app to drive a machine</h2>
+
+    <p>The rewinder came with its own control software from the machine vendor &mdash; a Windows application, in Chinese, with no documentation and no register map. It knew how to tell the PLC to lower the inkjet head and run the conveyor. We didn't.</p>
+
+    <p>Replacing it meant learning what it said. So I recorded the PLC's shared data block during live production at 100&nbsp;ms intervals, across roll after roll, and lined the captures up against the vendor application's own routine for adding a roll. Where a value changed at the moment an operator finished a roll, that was an offset worth a guess. Where a single bit flipped true and the print head moved a beat later, that was a strobe.</p>
+
+    <p>The map came out confirmed in both directions &mdash; from the recordings and from the vendor's own code &mdash; and forty rolls out of forty matched. This is the sequence our gateway now writes:</p>
+
+    <ol class="seq">
+      <li><span class="addr">word</span><span class="desc">roll diameter</span></li>
+      <li><span class="addr">word</span><span class="desc">roll width</span></li>
+      <li><span class="addr">byte range</span><span class="desc">roll ID, fixed width</span></li>
+      <li><span class="addr">control bit</span><span class="desc">strobe: roll info ready</span></li>
+      <li><span class="addr">&mdash;</span><span class="desc">send the inkjet payload, wait for its acknowledgement</span></li>
+      <li><span class="addr">control bit</span><span class="desc">strobe: start printing</span></li>
+    </ol>
+
+    <p class="seq-note">Offsets and bit positions are specific to this installation, so they stay on the plant network rather than on this page &mdash; the shape of the handshake is the part worth showing.</p>
+
+    <figure>
+      <svg viewBox="0 0 880 268" role="img" aria-label="Data flow from the Siemens PLC and serial devices through the on-site gateway to the operator screen and the cloud">
+        <defs>
+          <marker id="ar" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon points="0,1 10,5 0,9" fill="currentColor"/>
+          </marker>
+          <marker id="ar-a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon points="0,1 10,5 0,9" fill="#9a5a00"/>
+          </marker>
+        </defs>
+
+        <!-- plant floor label -->
+        <text x="8" y="18" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity=".5">PLANT FLOOR</text>
+        <text x="612" y="18" font-family="IBM Plex Mono, monospace" font-size="11" fill="currentColor" opacity=".5">OFF SITE</text>
+        <line x1="600" y1="28" x2="600" y2="252" stroke="currentColor" stroke-width="1" stroke-dasharray="3 5" opacity=".35"/>
+
+        <!-- devices -->
+        <rect x="8" y="34" width="150" height="48" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="83" y="54" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Siemens S7-1500</text>
+        <text x="83" y="70" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".62">S7comm · data block</text>
+
+        <rect x="8" y="106" width="150" height="44" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="83" y="124" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Scale indicator</text>
+        <text x="83" y="139" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".62">serial · 8-N-1</text>
+
+        <rect x="8" y="174" width="150" height="44" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="83" y="192" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Inkjet marker</text>
+        <text x="83" y="207" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".62">TCP · JSON lines</text>
+
+        <!-- gateway -->
+        <rect x="298" y="72" width="164" height="112" rx="2" fill="none" stroke="#9a5a00" stroke-width="2"/>
+        <text x="380" y="98" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="14" font-weight="600" fill="#9a5a00">Gateway</text>
+        <text x="380" y="117" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".7">Node · Fastify</text>
+        <text x="380" y="134" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".7">SQLite (local)</text>
+        <text x="380" y="151" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".7">Code128 labels</text>
+        <text x="380" y="168" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".7">11 test files</text>
+
+        <!-- arrows in -->
+        <line x1="158" y1="52" x2="292" y2="100" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/>
+        <text x="200" y="56" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".65">reads</text>
+        <line x1="292" y1="112" x2="158" y2="66" stroke="#9a5a00" stroke-width="1.6" marker-end="url(#ar-a)"/>
+        <text x="176" y="108" font-family="IBM Plex Mono, monospace" font-size="10" fill="#9a5a00">writes strobes</text>
+
+        <line x1="158" y1="128" x2="292" y2="128" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/>
+        <text x="196" y="122" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".65">weight</text>
+
+        <line x1="158" y1="196" x2="292" y2="160" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/>
+        <text x="188" y="188" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".65">print job</text>
+
+        <!-- HMI -->
+        <rect x="474" y="34" width="112" height="44" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="530" y="52" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Operator HMI</text>
+        <text x="530" y="67" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".62">Angular</text>
+        <line x1="462" y1="104" x2="530" y2="84" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/>
+        <text x="472" y="116" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".65">WebSocket</text>
+
+        <!-- cloud -->
+        <rect x="640" y="118" width="150" height="48" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="715" y="138" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Cloud API</text>
+        <text x="715" y="154" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".62">Fastify · MySQL</text>
+        <line x1="462" y1="146" x2="634" y2="142" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar)"/>
+        <text x="482" y="164" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".65">queues rolls, retries on reconnect</text>
+
+        <!-- note -->
+        <text x="298" y="212" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".55">Writes ship disabled. PLC_ALLOW_WRITE=1 arms them.</text>
+        <rect x="296" y="198" width="2" height="20" fill="#9a5a00"/>
+      </svg>
+      <figcaption>The gateway sits on the plant PC, between machines that only speak S7comm, serial and raw TCP, and the two audiences that need what they say: the operator standing at the line, and the cloud.</figcaption>
+    </figure>
+
+    <h3>The part I'd want to be asked about</h3>
+
+    <p>Writing to that PLC moves a print head and a conveyor with people standing next to them. Getting the software right was the smaller half of the problem; releasing it without hurting anyone was the larger one.</p>
+
+    <p>So writes ship disabled. The application reads the PLC by default and says so on screen; enabling writes takes an explicit <code>PLC_ALLOW_WRITE=1</code> in the environment file, and the console prints a warning that the app will now move machinery. Commissioning ran as a written checklist in plain Indonesian, staged so that nothing electrical happened until the boring parts were proven:</p>
+
+    <div class="callout">
+      Stage A runs with writes still off &mdash; roll saved, label printed, inkjet acknowledging, PLC reading green. <strong>If even one of those fails, don't go to Stage B.</strong> Adding machine control on top of a foundation that isn't settled only makes the fault harder to read.<br><br>
+      Stage B needs the vendor software fully closed, the line stopped or stoppable, <strong>someone standing at the machine who can hit stop</strong>, and an obviously fake test roll. Save one roll. Then stop and compare it against a roll the old system made.
+    </div>
+
+    <p>And when something does fail mid-sequence, the roll is not rolled back. The paper is real; it has been wound and weighed. The system keeps the record and raises a warning naming the step that failed, so the conveyor or the inkjet can be handled by hand.</p>
+
+    <div class="plate">
+      <dl>
+        <dt>Stack</dt><dd>Node 24 · TypeScript · Fastify · WebSocket · better-sqlite3 · Electron</dd>
+        <dt>Protocols</dt><dd>S7comm (Siemens S7-1500) · serial 8-N-1 · raw TCP JSON lines</dd>
+        <dt>Also built</dt><dd>Code128 encoder and label renderer, written by hand</dd>
+        <dt>Tests</dt><dd>11 suites — schema, PLC write, label render, scale, inkjet, integration</dd>
+        <dt>Shipped as</dt><dd>Windows NSIS installer, gateway + HMI bundled</dd>
+        <dt>Status</dt><dd>Running daily production</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Case 02 &middot; Weighbridge</div>
+    <h2>A truck scale, read by a browser tab</h2>
+
+    <p>Weighbridge indicators talk over a serial cable in whatever dialect the manufacturer chose, at whatever line settings someone configured years ago. Nobody at the mill knew the settings, and the manual was gone.</p>
+
+    <p>Rather than ask an operator to guess baud rates, the reader negotiates. It opens the port at a candidate configuration, listens for two and a half seconds, and accepts that configuration only if at least two valid frames arrive. A framing or break error is read as evidence of the wrong settings rather than as a crash, and it moves on to the next candidate. Three vendor frame formats are parsed, and the stability flag the indicator sends is honoured &mdash; the save button stays disabled while the number is still moving:</p>
+
+    <div class="term">
+<pre><span class="cm">// three dialects, one reader</span>
+<span class="hi">ST</span>,GS,+0000230kg     <span class="cm">stable   · kilograms, as sent</span>
+<span class="hi">US</span>GS+0000090        <span class="cm">unstable · divide by ten</span>
+<span class="hi">ST</span>+0000070          <span class="cm">stable   · divide by ten</span></pre>
+    </div>
+
+    <p>This runs in the browser, over the Web Serial API. It replaced a clipboard.</p>
+
+    <h3>And then the internet went down</h3>
+
+    <p>A mill does not stop weighing because an ISP is having an afternoon. So the same application also ships as a Windows desktop build that bundles a PHP runtime and starts two Laravel API servers locally, creating and migrating their SQLite databases on first launch. The operator sees the same screens; the app just points at localhost instead of the cloud, and syncs when the link returns.</p>
+
+    <div class="plate">
+      <dl>
+        <dt>Stack</dt><dd>Angular 21 · Signals · Laravel 12 · Sanctum · MySQL / SQLite · Electron</dd>
+        <dt>Hardware</dt><dd>Weighbridge indicator over Web Serial API, auto-negotiated</dd>
+        <dt>Surface</dt><dd>82 API endpoints · 19 protected routes · 13 roles</dd>
+        <dt>Also built</dt><dd>Stock reconciliation with four anomaly detectors; an interactive warehouse map of 56 storage blocks across 3 zones, drawn without a mapping library</dd>
+        <dt>In production</dt><dd>1,464 weighing tickets · 55,687 moisture readings · ~64,000 rows over 8 months</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Case 03 &middot; Executive dashboard</div>
+    <h2>Four systems that were never meant to be read together</h2>
+
+    <p>Once the mill had four systems, the directors had four logins, four report formats and a person whose week partly consisted of copying numbers between them. The fix was not a fifth database. It was a gateway.</p>
+
+    <p>Every request from the browser goes to our own server, which holds the credentials and talks to the four upstream systems on the reader's behalf. Their authentication schemes have nothing in common &mdash; Sanctum tokens, JWT, a plain bearer token, and one service with no login at all &mdash; so each connector normalises its own login shape behind a single interface, caches the token in memory, and retries exactly once on a 401. No upstream credential is ever handed to the browser, and query parameters are whitelisted rather than forwarded, so a stray parameter can't be replayed upstream under our service account.</p>
+
+    <figure>
+      <svg viewBox="0 0 880 300" role="img" aria-label="Browser requests pass through a Nitro gateway with connectors that authenticate separately to four upstream factory systems">
+        <defs>
+          <marker id="ar2" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+            <polygon points="0,1 10,5 0,9" fill="currentColor"/>
+          </marker>
+        </defs>
+
+        <rect x="330" y="10" width="220" height="40" rx="2" fill="none" stroke="currentColor" stroke-width="1.5"/>
+        <text x="440" y="35" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="13" font-weight="600" fill="currentColor">Browser · Vue / Nuxt</text>
+
+        <line x1="440" y1="50" x2="440" y2="78" stroke="currentColor" stroke-width="1.4" marker-end="url(#ar2)"/>
+        <text x="452" y="70" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".65">same-origin only</text>
+
+        <rect x="250" y="82" width="380" height="84" rx="2" fill="none" stroke="#9a5a00" stroke-width="2"/>
+        <text x="440" y="104" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="14" font-weight="600" fill="#9a5a00">Nitro gateway</text>
+        <text x="440" y="123" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".7">29 endpoints · session required on each</text>
+        <text x="440" y="140" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".7">TTL cache 30s–300s · invalidated on write</text>
+        <text x="440" y="157" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".7">type + unit normalisation at the boundary</text>
+
+        <line x1="150" y1="196" x2="150" y2="172" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+        <line x1="150" y1="172" x2="730" y2="172" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+        <line x1="730" y1="172" x2="730" y2="196" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+        <line x1="343" y1="172" x2="343" y2="196" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+        <line x1="537" y1="172" x2="537" y2="196" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+        <line x1="440" y1="166" x2="440" y2="172" stroke="currentColor" stroke-width="1.2" opacity=".5"/>
+
+        <rect x="76" y="198" width="148" height="66" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="150" y="220" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="currentColor">Weighbridge QC</text>
+        <text x="150" y="236" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".6">Laravel</text>
+        <text x="150" y="252" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#9a5a00">Sanctum token</text>
+
+        <rect x="269" y="198" width="148" height="66" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="343" y="220" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="currentColor">Warehouse</text>
+        <text x="343" y="236" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".6">Laravel</text>
+        <text x="343" y="252" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#9a5a00">bearer in body</text>
+
+        <rect x="463" y="198" width="148" height="66" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="537" y="220" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="currentColor">Engineering</text>
+        <text x="537" y="236" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".6">Laravel</text>
+        <text x="537" y="252" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#9a5a00">JWT</text>
+
+        <rect x="656" y="198" width="148" height="66" rx="2" fill="none" stroke="currentColor" stroke-width="1.4"/>
+        <text x="730" y="220" text-anchor="middle" font-family="IBM Plex Sans, sans-serif" font-size="12.5" font-weight="600" fill="currentColor">Winder cloud</text>
+        <text x="730" y="236" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="currentColor" opacity=".6">Fastify</text>
+        <text x="730" y="252" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10" fill="#9a5a00">no login</text>
+
+        <text x="440" y="290" text-anchor="middle" font-family="IBM Plex Mono, monospace" font-size="10.5" fill="currentColor" opacity=".55">four auth schemes · one connector interface · re-login once on 401</text>
+      </svg>
+      <figcaption>The gateway is the only thing that knows four passwords. The browser knows none of them.</figcaption>
+    </figure>
+
+    <h3>Numbers that were quietly wrong</h3>
+
+    <p>The interesting work here wasn't plumbing. It was that several figures looked plausible and weren't, and the only way to find them was to know what the mill actually means by each word.</p>
+
+    <p><strong>Tare.</strong> Deriving tare as gross minus net is arithmetic, and it is wrong here: net has already had moisture and waste deductions applied. On one real ticket that reads 3,389&nbsp;kg of tare where the truck's actual tare was 2,990&nbsp;kg. Tare has to come from the tare field.</p>
+
+    <p><strong>Mixed cargo.</strong> One truck can carry several materials on one ticket. Filter by material without parsing the mix and a 1,680&nbsp;kg delivery of DLK reports as the ticket's full 2,770&nbsp;kg.</p>
+
+    <p><strong>Booleans that aren't.</strong> The older API returns booleans as the strings <code>"1"</code> and <code>"0"</code>. In JavaScript <code>Boolean("0")</code> is <code>true</code>, so every transaction read as finished. Numerics arrive as strings too, which turns a sum into concatenation.</p>
+
+    <p><strong>Today against yesterday.</strong> A shift three hours old compared against a full previous day always reads as a sixty percent collapse. The delta was red every morning and told nobody anything. Now today is compared against yesterday truncated to the same wall-clock hour in plant time.</p>
+
+    <div class="callout">
+      None of these throw an error. They render as a number in the right font, in the right box, on a screen a director makes decisions from. That is the failure mode worth designing against.
+    </div>
+
+    <div class="plate">
+      <dl>
+        <dt>Stack</dt><dd>Nuxt 4 · Nitro · TypeScript · Drizzle ORM · MySQL</dd>
+        <dt>Integrates</dt><dd>4 upstream systems · 4 auth schemes · 29 gateway endpoints</dd>
+        <dt>Charts</dt><dd>Hand-written SVG — a charting library would have cost more over the plant network than the whole page does</dd>
+        <dt>Built for</dt><dd>Phones. Directors read it walking the floor, so the nav is thumb-reachable and the type is sized for readers over fifty</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Case 04 &middot; Warehouse</div>
+    <h2>Stock that two people can touch at once</h2>
+
+    <p>Spare parts move through a request, an order and a receipt, and each of those can be partially fulfilled, cancelled, or filled with something other than what was asked for. Stock counts are the number everyone argues about, so they have to survive two admins clicking approve at the same instant.</p>
+
+    <p>Every stock mutation runs inside a transaction with row-level locking on the product and its log, and writes a before and after snapshot on each line. Approvals happen per item, with the header status recomputed from its lines rather than set by hand. When a supplier ships something other than what was ordered, the receipt can map it to an existing product or create one flagged for SKU review, keeping a link back to what it substituted for &mdash; so the mismatch surfaces to purchasing instead of quietly becoming a new part number.</p>
+
+    <p>Three activity tables store field-level JSON diffs of what changed, by whom. Documents number themselves from a user-editable template such as <code>SPB/{YYYY}/{MM}/{XXX}</code>, resolved at runtime, because the format changes and it shouldn't need me.</p>
+
+    <div class="plate">
+      <dl>
+        <dt>Stack</dt><dd>Nuxt 4 · Vue 3 · TypeScript · Laravel 12 · MySQL</dd>
+        <dt>Surface</dt><dd>~89 endpoints · 83 components · 19 domain tables · 18 roles, two portals</dd>
+        <dt>In production</dt><dd>2,379 SKUs · ~16,000 transactional records</dd>
+        <dt>Reporting</dt><dd>Stock card with opening balances back-calculated in SQL; Excel and PDF export</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">How I work</div>
+    <h2>What a remote team would actually get</h2>
+
+    <div class="practice">
+      <div>
+        <h3>I write things down for the person who has to run it</h3>
+        <p>The PLC commissioning guide is written for a maintenance technician, not a developer: what is safe to run during production, what needs the line stopped, what a specific error message means and why it isn't a failure. If I can't explain a system to the person operating it, I don't understand it yet. That habit is most of what asynchronous work is.</p>
+      </div>
+      <div>
+        <h3>I default to the safe state</h3>
+        <p>Dangerous capability ships disabled and is armed deliberately. Read-only is the default; the screen says which mode it's in. Rollback is one line in a config file and a restart.</p>
+      </div>
+      <div>
+        <h3>I deploy and operate what I build</h3>
+        <p>Five systems across shared hosting and Vercel: subdomains, DNS, SSL, MySQL provisioning and migrations, connection pooling tuned to the host's idle timeout and per-account limits, and a CommonJS entry point worked around because the host runs LiteSpeed. Nobody hands these to an ops team. When one breaks at 11pm, it's mine.</p>
+      </div>
+      <div>
+        <h3>I test where being wrong is physical</h3>
+        <p>The gateway that writes to the PLC has eleven test suites, because a wrong byte moves a conveyor. The CRUD systems around it lean on transactions, validation and audit trails instead &mdash; which is a real gap, not a philosophy, and it's the thing I'd most want to fix with a team that has the habit already.</p>
+      </div>
+      <div>
+        <h3>I work in the gap between the machine and the web</h3>
+        <p>Most web developers stop at the API. Most automation engineers stop at the HMI. Register maps, serial framing, port contention with vendor software, and what happens when the thing on the other end of the cable was documented in 2011 in another language &mdash; that's the part I've turned out to like.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="eyebrow">Toolkit</div>
+    <h2>What I reach for</h2>
+    <dl class="stack-grid">
+      <dt>Languages</dt><dd>TypeScript, JavaScript, PHP, SQL</dd>
+      <dt>Frontend</dt><dd>Angular 21 (Signals, standalone, functional guards), Nuxt 4 / Vue 3, TailwindCSS, RxJS</dd>
+      <dt>Backend</dt><dd>Laravel 12, Node.js / Fastify, CodeIgniter 4, REST design, Sanctum &amp; JWT</dd>
+      <dt>Desktop &amp; mobile</dt><dd>Electron, electron-builder / NSIS, Ionic, Capacitor</dd>
+      <dt>Data</dt><dd>MySQL / MariaDB, SQLite, Drizzle ORM, Eloquent, schema design and migrations</dd>
+      <dt>Industrial</dt><dd>Siemens S7comm, Modbus TCP, Web Serial API, serial devices, Code128</dd>
+      <dt>Operations</dt><dd>Shared hosting &amp; cPanel, LiteSpeed, Vercel, VPS, DNS, SSL, MySQL administration</dd>
+      <dt>Ways of working</dt><dd>Git, Figma, Agile, written handover docs, staged rollout, audit trails</dd>
+    </dl>
+  </section>
+
+  <section>
+    <div class="eyebrow">Before this</div>
+    <h2>Government mobile applications</h2>
+    <p>Before the mill, a year at Adhivasindo in Bandung building three cross-platform applications through to Google Play release, for the West Java Regional Police and the West Nusa Tenggara provincial government &mdash; personnel management, civil-servant performance feedback, and disciplinary case tracking. Ionic Angular and Capacitor on the front, CodeIgniter 4 and MySQL behind, working directly with government stakeholders on a twelve-month engagement.</p>
+  </section>
+
+  <section>
+    <div class="eyebrow">Contact</div>
+    <h2>Let's talk</h2>
+    <p>I'm looking for remote work with a team that builds things people depend on. I'm in GMT+7, which overlaps comfortably with European afternoons and the start of the US East Coast day, and I'm used to working from written specs and leaving written trails.</p>
+    <ul class="contact-list">
+      <li><a href="mailto:yoganadennn@gmail.com">yoganadennn@gmail.com</a></li>
+      <li><a href="https://www.linkedin.com/in/ynadennn" target="_blank" rel="noopener">linkedin.com/in/ynadennn</a></li>
+      <li><a href="https://github.com/Nadennnn" target="_blank" rel="noopener">github.com/Nadennnn</a></li>
+    </ul>
+
+    <footer>Yoga Naden · Medan, Indonesia · GMT+7</footer>
+  </section>
+
+</div>
+</body>
+</html>
